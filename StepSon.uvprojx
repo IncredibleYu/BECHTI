@@ -10,7 +10,7 @@
       <TargetName>Simu</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -383,11 +383,6 @@
         <Group>
           <GroupName>Sources</GroupName>
           <Files>
-            <File>
-              <FileName>GestionSon.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\GestionSon.h</FilePath>
-            </File>
             <File>
               <FileName>principal.c</FileName>
               <FileType>1</FileType>
@@ -813,11 +808,6 @@
           <GroupName>Sources</GroupName>
           <Files>
             <File>
-              <FileName>GestionSon.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\GestionSon.h</FilePath>
-            </File>
-            <File>
               <FileName>principal.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Src\principal.c</FilePath>
@@ -937,7 +927,7 @@
       <TargetName>CibleSondeST</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -1310,11 +1300,6 @@
         <Group>
           <GroupName>Sources</GroupName>
           <Files>
-            <File>
-              <FileName>GestionSon.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\GestionSon.h</FilePath>
-            </File>
             <File>
               <FileName>principal.c</FileName>
               <FileType>1</FileType>

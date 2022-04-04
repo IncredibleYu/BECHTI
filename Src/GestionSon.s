@@ -12,12 +12,15 @@
 		
 	import Son
 	import LongueurSon 
-	import PeriodeSonMicroSec 	
+	import PeriodeSonMicroSec 
+	export CallbackSon
+	export SortieSon
+	export Index
 	
 	
 ; ===============================================================================================
 	
-SortieSon	dcw [0,719]
+SortieSon	dcd 0
 Index	dcd 0
 
 ;*****ldrsh
@@ -28,7 +31,7 @@ CallbackSon proc
 
 ;   sortir Rx vers la pwm
 ; 	indice ++
-	push {lr,r4,r5}
+	push {lr,r4-r7}
 	
 	ldr r4, =LongueurSon ;r4=&LongueurSon
 	ldr r1, [r4]         ;r1=*LongueurSon	
@@ -36,23 +39,32 @@ CallbackSon proc
 	ldr r2, [r4]         ;r2=*Index	
 	
 	cmp r2, r1           ;comparer la LongueurSon et Index			 	 
-	bge after;  	     ;si Index < LongueurSon, on passes next
+	bge Finsi;  	     ;si Index >= LongueurSon, on passes à after
 	
 	;	recup l'échantillon
-	lrd r1, =Son
+	ldr r1, =Son
 	ldrsh r0, [r1,r2, lsl #1]
 
 	;   mise à l'échelle de Rx
 	ldr r5, =SortieSon
-	add r0, #32768       ;16bits, 2^15=32768
+	ldr r7, [r5]
+	add r0, #32768       		; [-32768, 32768] -> [0, 65536]
+	mov r6, #719
+	mul r0, r0, r6	 		; [0, 65536]->[0,65536*719]
 	
+	lsr r0, r0, #16				; [0,65536*719]->[0,719]
+	
+	str r0, [r5]	; SortieSon = r0
+	ldr r7, [r5]
 	
 	
 
-after
-	pop {lr,r4,r5}
-	bx lr 
+	add r2, r2, #1				; i++
+	str r2, [r4] 				; Index = r2
 
-; fin si
-	endp
+Finsi
+	pop {lr,r4-r7}
+	
+	bx lr
+	ENDP
 	END
