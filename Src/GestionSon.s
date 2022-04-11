@@ -26,6 +26,7 @@ Index	dcd 0
 ;*****ldrsh
 ;Section ROM code (read only) :		
 	area    moncode,code,readonly
+	include ./Driver/DriverJeuLaser.inc
 ; écrire le code ici		
 CallbackSon proc
 
@@ -47,7 +48,6 @@ CallbackSon proc
 
 	;   mise à l'échelle de Rx
 	ldr r5, =SortieSon
-	ldr r7, [r5]
 	add r0, #32768       		; [-32768, 32768] -> [0, 65536]
 	mov r6, #719
 	mul r0, r0, r6	 		; [0, 65536]->[0,65536*719]
@@ -55,7 +55,6 @@ CallbackSon proc
 	lsr r0, r0, #16				; [0,65536*719]->[0,719]
 	
 	str r0, [r5]	; SortieSon = r0
-	ldr r7, [r5]
 	
 	
 
@@ -63,8 +62,16 @@ CallbackSon proc
 	str r2, [r4] 				; Index = r2
 
 Finsi
+	bl PWM_Set_Value_TIM3_Ch3;
 	pop {lr,r4-r7}
 	
 	bx lr
 	ENDP
+		
+StartSon proc
+		ldr r1, =Index
+		mov r2, #0
+		strh r2, [r1]
+		bx lr
+		endp
 	END
