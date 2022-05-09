@@ -3,7 +3,7 @@
 #include "DriverJeuLaser.h"
 
 
-extern int DFT_ModuleAuCarre(short int * Signal64ech, char k);
+extern int DFT(short int * Signal64ech, char k);
 
 extern short int LeSignal[64];
 
@@ -25,7 +25,7 @@ CLOCK_Configure();
 
 //============================================================================	
 for (char k=0; k<64; k++) {
-	result[k] = DFT_ModuleAuCarre(LeSignal, k);
+	result[k] = DFT(LeSignal, k);
 }
 	
 while	(1)

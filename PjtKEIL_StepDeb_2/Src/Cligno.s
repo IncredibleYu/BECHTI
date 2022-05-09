@@ -14,16 +14,21 @@
 	
 ; ===============================================================================================
 	
-
+FlagCligno dcd 0
 	
 
 		
 ;Section ROM code (read only) :		
 	area    moncode,code,readonly
+	include DriverJeuLaser.inc
 ; �crire le code ici		
 
-timer_callback
+	export timer_callback
+	export FlagCligno
+
+timer_callback proc
 	push {lr,r4,r5}
+	mov r0, #1
 	ldr r4, =FlagCligno
 	ldr r5, [r4]
 	cmp r5, #1
@@ -45,7 +50,7 @@ after
 	bx lr 
 
 
-
+	endp
 		
 		
 	END	

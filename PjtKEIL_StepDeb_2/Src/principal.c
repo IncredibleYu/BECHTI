@@ -33,7 +33,7 @@ Active_IT_Debordement_Timer( TIM4, 2, timer_callback );
 GPIO_Configure(GPIOB, 1, OUTPUT, OUTPUT_PPULL);
 	
 	
-	
+
 
 //============================================================================	
 	
@@ -60,5 +60,4 @@ void timer_callback(void)
 	}
 		
 }
-
 */

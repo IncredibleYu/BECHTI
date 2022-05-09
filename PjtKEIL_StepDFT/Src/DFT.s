@@ -14,7 +14,7 @@
 	
 ; ===============================================================================================
 	
-	EXPORT DFT_ModuleAuCarre
+	EXPORT DFT
 	IMPORT LeSignal
 
 		
@@ -22,16 +22,36 @@
 	area    moncode,code,readonly
 ; écrire le code ici		
 
-DFT_ModuleAuCarre proc  ;r0 Signal, r1 k
-	push {r2-r8} 
-	mov r2, #0          ;r2 = n
+DFT proc  ; r0 Signal, r1 k
+	push {r2-r12} 
+	mov r2, #0          ; r2 = n
+	mov r8, #0          ; partie réelle
+	;mov r12, #0			; partie imaginaire
+	ldr r5, =TabCos 
+	;ldr r9, =TabSin
 For 
-	ldrsh r3 [r0, r2, lsl#1]     ;r3 = x(n) 4.12
-	mul r4, r1, r2				 ;r4 =k*n   
+	ldrsh r7, [r0, r2, lsl#1]     ; r7 = x(n) format 4.12
+	mul r4, r1, r2				 ; r4 = k*n   
+	and r4, #0x003F              ; r4 = p = k*n mod 64 ici on utilise les bits de poids faibles pour déterminer mod 64
+	ldrsh r6, [r5, r4, lsl#1]      ; r6 = Tabcos(p) format 1.15
+	mul r3, r7, r6               ; r3 = x(n)*cos(2PI*p/M) format 5.27
+	add r8, r3					 ; r8 = somme des partie reelle
+	;ldrsh r10, [r9, r4, lsl#1]      ; r10 = Tabsin(p) format 1.15
+	;mul r11, r7, r10               ; r11 = x(n)*sin(2PI*p/M) format 5.27
+	;add r12,r11                    ;r12 = somme des partie imaginaire
+	add r2, #1
+	cmp r2, #64
+	bne For						 ; if n >= 64 on sort de la boucle
 	
+	;smull r1, r0, r8, r8
+	;smlal r1, r0, r12, r12 ; Re^2 + Im^2
 	
-
-
+	mov R0,R8 ;;;;;;;;;;;;;;;;;;
+	pop {r2-r12}
+	bx lr
+	endp
+		
+		
 ;Section ROM code (read only) :		
 	AREA Trigo, DATA, READONLY
 ; codage fractionnaire 1.15
