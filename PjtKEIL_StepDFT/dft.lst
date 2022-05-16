@@ -34,52 +34,60 @@ ARM Macro Assembler    Page 1
    26 00000000 E92D 1FFC       push             {r2-r12}
    27 00000004 F04F 0200       mov              r2, #0      ; r2 = n
    28 00000008 F04F 0800       mov              r8, #0      ; partie réelle
-   29 0000000C         ;mov r12, #0   ; partie imaginaire
-   30 0000000C 4D09            ldr              r5, =TabCos
-   31 0000000E         ;ldr r9, =TabSin
-   32 0000000E         For
-   33 0000000E F930 7012       ldrsh            r7, [r0, r2, lsl#1] ; r7 = x(n)
+   29 0000000C F04F 0C00       mov              r12, #0     ; partie imaginaire
+                                                            
+   30 00000010 4D0E            ldr              r5, =TabCos
+   31 00000012 F8DF 903C       ldr              r9, =TabSin
+   32 00000016         For
+   33 00000016 F930 7012       ldrsh            r7, [r0, r2, lsl#1] ; r7 = x(n)
                                                              format 4.12
-   34 00000012 FB01 F402       mul              r4, r1, r2  ; r4 = k*n   
-   35 00000016 F004 043F       and              r4, #0x003F ; r4 = p = k*n mod 
+   34 0000001A FB01 F402       mul              r4, r1, r2  ; r4 = k*n   
+   35 0000001E F004 043F       and              r4, #0x003F ; r4 = p = k*n mod 
                                                             64 ici on utilise l
                                                             es bits de poids fa
                                                             ibles pour détermin
                                                             er mod 64
-   36 0000001A F935 6014       ldrsh            r6, [r5, r4, lsl#1] ; r6 = Tabc
+   36 00000022 F935 6014       ldrsh            r6, [r5, r4, lsl#1] ; r6 = Tabc
                                                             os(p) format 1.15
-   37 0000001E FB07 F306       mul              r3, r7, r6  ; r3 = x(n)*cos(2PI
+   37 00000026 FB07 F306       mul              r3, r7, r6  ; r3 = x(n)*cos(2PI
                                                             *p/M) format 5.27
-   38 00000022 4498            add              r8, r3      ; r8 = somme des pa
+   38 0000002A 4498            add              r8, r3      ; r8 = somme des pa
                                                             rtie reelle
-   39 00000024         ;ldrsh r10, [r9, r4, lsl#1]      ; r10 = Tabsin(p) forma
-                       t 1.15
-   40 00000024         ;mul r11, r7, r10               ; r11 = x(n)*sin(2PI*p/M
-                       ) format 5.27
-   41 00000024         ;add r12,r11                    ;r12 = somme des partie 
-                       imaginaire
-   42 00000024 F102 0201       add              r2, #1
-   43 00000028 2A40            cmp              r2, #64
-   44 0000002A D1F0            bne              For         ; if n >= 64 on sor
-                                                            t de la boucle
-   45 0000002C         
+   39 0000002C F939 A014       ldrsh            r10, [r9, r4, lsl#1] ; r10 = Ta
+                                                            bsin(p) format 1.15
+                                                            
+   40 00000030 FB07 FB0A       mul              r11, r7, r10 ; r11 = x(n)*sin(2
+                                                            PI*p/M) format 5.27
+                                                            
+   41 00000034 44DC            add              r12,r11     ;r12 = somme des pa
+                                                            rtie imaginaire
+   42 00000036 F102 0201       add              r2, #1
+   43 0000003A 2A40            cmp              r2, #64
 
 
 
 ARM Macro Assembler    Page 2 
 
 
-   46 0000002C         ;smull r1, r0, r8, r8
-   47 0000002C         ;smlal r1, r0, r12, r12 ; Re^2 + Im^2
-   48 0000002C         
-   49 0000002C 4640            mov              R0,R8       ;;;;;;;;;;;;;;;;;;
-   50 0000002E E8BD 1FFC       pop              {r2-r12}
-   51 00000032 4770            bx               lr
-   52 00000034                 endp
-   53 00000034         
-   54 00000034         
-   55 00000034         ;Section ROM code (read only) :  
-   56 00000034 00000000        AREA             Trigo, DATA, READONLY
+   44 0000003C D1EB            bne              For         ; if n >= 64 on sor
+                                                            t de la boucle
+   45 0000003E         
+   46 0000003E FB88 1008       smull            r1, r0, r8, r8 ; Re^2
+   47 00000042 FBCC 100C       smlal            r1, r0, r12, r12 ; Re^2 + Im^2 
+                                                            ;format 10.22 doit 
+                                                            être 10.54 mais on 
+                                                            enleve 32 bit après
+                                                             le virgule
+   48 00000046         ;add R8,R12    ;;;;;;;;;;;;;;;;
+   49 00000046         ;mov R0,R8 ;;;;;;;;;;;;;;;;;;
+   50 00000046 E8BD 1FFC       pop              {r2-r12}
+   51 0000004A 4770            bx               lr
+   52 0000004C                 endp
+   53 0000004C         
+   54 0000004C         
+   55 0000004C         ;Section ROM code (read only) :  
+   56 0000004C 00000000 
+              00000000         AREA             Trigo, DATA, READONLY
    57 00000000         ; codage fractionnaire 1.15
    58 00000000         
    59 00000000         
@@ -120,6 +128,12 @@ ARM Macro Assembler    Page 2
                                                             0
    78 00000022 74 F3           DCW              -3212       ; 17 0xf374 -0.0980
                                                             2
+
+
+
+ARM Macro Assembler    Page 3 
+
+
    79 00000024 07 E7           DCW              -6393       ; 18 0xe707 -0.1951
                                                             0
    80 00000026 D8 DA           DCW              -9512       ; 19 0xdad8 -0.2902
@@ -128,12 +142,6 @@ ARM Macro Assembler    Page 2
                                                             9
    82 0000002A A9 C3           DCW              -15447      ; 21 0xc3a9 -0.4714
                                                             1
-
-
-
-ARM Macro Assembler    Page 3 
-
-
    83 0000002C E3 B8           DCW              -18205      ; 22 0xb8e3 -0.5555
                                                             7
    84 0000002E CC AE           DCW              -20788      ; 23 0xaecc -0.6344
@@ -185,6 +193,12 @@ ARM Macro Assembler    Page 3
   107 0000005C 07 E7           DCW              -6393       ; 46 0xe707 -0.1951
                                                             0
   108 0000005E 74 F3           DCW              -3212       ; 47 0xf374 -0.0980
+
+
+
+ARM Macro Assembler    Page 4 
+
+
                                                             2
   109 00000060 00 00           DCW              0           ; 48 0x0000  0.0000
                                                             0
@@ -193,12 +207,6 @@ ARM Macro Assembler    Page 3
   111 00000064 F9 18           DCW              6393        ; 50 0x18f9  0.1951
                                                             0
   112 00000066 28 25           DCW              9512        ; 51 0x2528  0.2902
-
-
-
-ARM Macro Assembler    Page 4 
-
-
                                                             8
   113 00000068 FC 30           DCW              12540       ; 52 0x30fc  0.3826
                                                             9
@@ -250,6 +258,12 @@ ARM Macro Assembler    Page 4
   137 00000096 E3 70           DCW              28899       ; 11 0x70e3  0.8819
                                                             3
   138 00000098 42 76           DCW              30274       ; 12 0x7642  0.9238
+
+
+
+ARM Macro Assembler    Page 5 
+
+
                                                             9
   139 0000009A 7D 7A           DCW              31357       ; 13 0x7a7d  0.9569
                                                             4
@@ -258,12 +272,6 @@ ARM Macro Assembler    Page 4
   141 0000009E 62 7F           DCW              32610       ; 15 0x7f62  0.9951
                                                             8
   142 000000A0 FF 7F           DCW              32767       ; 16 0x7fff  0.9999
-
-
-
-ARM Macro Assembler    Page 5 
-
-
                                                             7
   143 000000A2 62 7F           DCW              32610       ; 17 0x7f62  0.9951
                                                             8
@@ -315,6 +323,12 @@ ARM Macro Assembler    Page 5
                                                             9
   167 000000D2 0E 9D           DCW              -25330      ; 41 0x9d0e -0.7730
                                                             1
+
+
+
+ARM Macro Assembler    Page 6 
+
+
   168 000000D4 92 95           DCW              -27246      ; 42 0x9592 -0.8314
                                                             8
   169 000000D6 1D 8F           DCW              -28899      ; 43 0x8f1d -0.8819
@@ -323,12 +337,6 @@ ARM Macro Assembler    Page 5
                                                             9
   171 000000DA 83 85           DCW              -31357      ; 45 0x8583 -0.9569
                                                             4
-
-
-
-ARM Macro Assembler    Page 6 
-
-
   172 000000DC 76 82           DCW              -32138      ; 46 0x8276 -0.9807
                                                             7
   173 000000DE 9E 80           DCW              -32610      ; 47 0x809e -0.9951
@@ -421,7 +429,7 @@ Symbol: DFT
    Uses
       At line 17 in file Src\DFT.s
 Comment: DFT used once
-For 0000000E
+For 00000016
 
 Symbol: For
    Definitions
@@ -458,8 +466,8 @@ Symbol: TabSin
    Definitions
       At line 125 in file Src\DFT.s
    Uses
-      None
-Comment: TabSin unused
+      At line 31 in file Src\DFT.s
+Comment: TabSin used once
 Trigo 00000000
 
 Symbol: Trigo
